@@ -145,8 +145,8 @@ class ArucoNode(rclpy.node.Node):
         self.intrinsic_mat = None
         self.distortion = None
 
-        self.aruco_dictionary = cv2.aruco.Dictionary_get(dictionary_id)
-        self.aruco_parameters = cv2.aruco.DetectorParameters_create()
+        self.aruco_dictionary = cv2.aruco.getPredefinedDictionary(dictionary_id)
+        self.aruco_parameters = cv2.aruco.DetectorParameters()
         self.bridge = CvBridge()
 
     def info_callback(self, info_msg):
@@ -161,7 +161,9 @@ class ArucoNode(rclpy.node.Node):
             self.get_logger().warn("No camera info has been received!")
             return
 
-        cv_image = self.bridge.imgmsg_to_cv2(img_msg, desired_encoding="mono8")
+        cv_image = self.bridge.imgmsg_to_cv2(img_msg, desired_encoding="8UC3")
+        # cv_image = self.bridge.imgmsg_to_cv2(img_msg, desired_encoding="8UC1")
+        # cv_image = self.bridge.imgmsg_to_cv2(img_msg, desired_encoding="mono8") #원래코드
         markers = ArucoMarkers()
         pose_array = PoseArray()
         if self.camera_frame == "":
@@ -170,7 +172,7 @@ class ArucoNode(rclpy.node.Node):
         else:
             markers.header.frame_id = self.camera_frame
             pose_array.header.frame_id = self.camera_frame
-
+        
         markers.header.stamp = img_msg.header.stamp
         pose_array.header.stamp = img_msg.header.stamp
 
